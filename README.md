@@ -2,11 +2,7 @@
 
 > AI 바이브 코더를 위한 아키텍처 설계 전문 MCP
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/tok_coding)
-
 Claude, Cursor, GPT, Gemini 등 AI 코딩 도구 사용자들이 서비스 초기 설계 단계에서 **최적의 아키텍처를 추천**받을 수 있는 MCP(Model Context Protocol) 서버입니다.
-
-**도움이 되셨다면 커피 한 잔 사주세요!** ☕ [Buy Me a Coffee](https://buymeacoffee.com/tok_coding)
 
 ## 💡 핵심 원리
 
@@ -755,13 +751,9 @@ graph LR
 
 ---
 
-## ☕ 후원하기
+## ☕ 톡코딩에게 후원하기
 
-tok_mcp가 도움이 되셨다면 커피 한 잔 사주세요!
-
-<a href="https://buymeacoffee.com/tok_coding" target="_blank">
-  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50">
-</a>
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-tok__coding-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/tok_coding)
 
 ---
 
