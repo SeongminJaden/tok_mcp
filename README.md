@@ -770,7 +770,7 @@ MIT License
 이슈와 PR을 환영합니다!
 
 ```bash
-git clone https://github.com/your-username/tok_mcp.git
+git clone https://github.com/seongminjaden/tok_mcp.git
 cd tok_mcp
 npm install
 npm run dev
