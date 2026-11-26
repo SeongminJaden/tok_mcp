@@ -426,20 +426,25 @@ const defaultPattern = awsPatterns["web-api"];
 function convertToGcp(pattern: ArchitecturePattern): ArchitecturePattern {
   return {
     ...pattern,
+    scalingStrategy: ["지연 시간과 CPU 사용률을 부하 테스트로 측정", "병목에 따라 컴퓨팅 한도와 데이터베이스 용량 조정"],
     compute: {
       ...pattern.compute,
-      service: pattern.compute.service.replace("ecs-fargate", "cloud-run").replace("eks", "gke"),
+      cpu: pattern.compute.service === "ecs-fargate" && parseFloat(pattern.compute.cpu) < 1 ? "1vCPU" : pattern.compute.cpu,
+      service: pattern.compute.service === "ecs-fargate" ? "cloud-run" : pattern.compute.service === "eks" ? "gke" : "compute-engine",
+      reason: "서비스 규모에 맞춰 관리형 컨테이너 또는 VM에서 시작",
     },
     database: {
       ...pattern.database,
-      service: pattern.database.service.replace("rds", "cloud-sql").replace("aurora", "cloud-spanner"),
-      instance: pattern.database.instance.replace("db.t4g", "db-f1").replace("db.r6g", "db-n1"),
+      type: "postgresql",
+      service: "cloud-sql",
+      reason: "관리형 PostgreSQL을 기본 후보로 검토",
+      instance: pattern.database.instance.endsWith("micro") ? "db-f1-micro" : "워크로드 측정 후 선택",
     },
     cache: pattern.cache
       ? {
           ...pattern.cache,
           service: "memorystore",
-          instance: pattern.cache.instance.replace("cache.t4g", "basic").replace("cache.r6g", "standard"),
+          instance: "basic",
         }
       : undefined,
     storage: pattern.storage

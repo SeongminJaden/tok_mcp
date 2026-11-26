@@ -1,17 +1,18 @@
 {
   "name": "tok_mcp",
-  "version": "0.1.2",
-  "description": "AI 바이브 코더를 위한 아키텍처 설계 전문 MCP",
+  "version": "0.2.0",
+  "description": "클라우드 설계 문서와 서울 비용 추정 · Cloud architecture documents and Seoul cost estimates for Node.js and MCP",
   "main": "dist/index.js",
   "bin": {
-    "tok_mcp": "./dist/index.js"
+    "tok_mcp": "./dist/cli.js"
   },
   "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "node dist/index.js",
-    "prepare": "npm run build"
+    "start": "node dist/cli.js",
+    "prepare": "npm run build",
+    "test": "npm run build && node --test test/*.test.mjs"
   },
   "keywords": [
     "mcp",
@@ -27,7 +28,8 @@
   "author": "seongminjaden",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -39,6 +41,14 @@
   },
   "files": [
     "dist",
-    "README.md"
-  ]
+    "README.md",
+    "README.en.md",
+    "PRICING.md",
+    "examples"
+  ],
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeongminJaden/tok_mcp.git"
+  }
 }

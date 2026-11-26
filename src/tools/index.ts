@@ -4,12 +4,23 @@
 
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 
+const filesSchema = {
+  type: "object",
+  required: ["ARCHITECTURE.md", ".ai-context.yaml"],
+  properties: { "ARCHITECTURE.md": { type: "string" }, ".ai-context.yaml": { type: "string" } },
+};
+
 // 도구 정의 목록
 export const tools: Tool[] = [
   {
     name: "design_architecture",
     description:
-      "대화형 질문을 통해 서비스에 맞는 아키텍처를 설계합니다. 플랫폼, 규모, 예산 등을 분석하여 최적의 아키텍처를 추천하고 ARCHITECTURE.md와 .ai-context.yaml 문서를 생성합니다.",
+      "서비스 요구사항으로 설계안을 만듭니다. Draft an architecture from service requirements.",
+    outputSchema: {
+      type: "object",
+      properties: { files: filesSchema, design: { type: "object" } },
+      required: ["files", "design"],
+    },
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -76,7 +87,7 @@ export const tools: Tool[] = [
   {
     name: "get_aws_reference",
     description:
-      "AWS 모범 사례 아키텍처를 조회합니다. 서비스 유형과 규모에 맞는 AWS Well-Architected 기반 아키텍처 패턴을 제공합니다.",
+      "서비스 종류와 규모에 맞는 AWS 패턴을 찾습니다. Look up an AWS pattern by workload and scale.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -106,7 +117,7 @@ export const tools: Tool[] = [
   {
     name: "recommend_cpu_arch",
     description:
-      "워크로드 특성에 따라 최적의 CPU 아키텍처(ARM/x86)를 추천합니다. 비용 효율성과 성능을 고려한 추천을 제공합니다.",
+      "워크로드에 맞는 CPU 아키텍처를 고릅니다. Compare CPU architectures for a workload.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -135,7 +146,7 @@ export const tools: Tool[] = [
   {
     name: "estimate_cost",
     description:
-      "아키텍처 구성에 대한 월간 예상 비용을 계산합니다. 각 서비스별 비용 breakdown을 제공합니다.",
+      "서울 공개 단가로 월 기본 비용을 계산합니다. Estimate monthly baseline costs using Seoul list prices.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -148,6 +159,7 @@ export const tools: Tool[] = [
           type: "object",
           properties: {
             service: { type: "string" },
+            cpuArch: { type: "string", enum: ["arm64", "x86_64"], description: "Fargate 기본값 x86_64" },
             instances: { type: "number" },
             cpu: { type: "string" },
             memory: { type: "string" },
@@ -178,7 +190,7 @@ export const tools: Tool[] = [
   {
     name: "get_scaling_strategy",
     description:
-      "현재 아키텍처에 대한 확장 전략을 제안합니다. 트래픽 증가 시나리오별 대응 방안을 제공합니다.",
+      "예상 트래픽에 따른 확장 단계를 제안합니다. Plan capacity changes for a traffic target.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -206,7 +218,12 @@ export const tools: Tool[] = [
   {
     name: "generate_docs",
     description:
-      "아키텍처 설계 결과를 바탕으로 ARCHITECTURE.md (사람용)와 .ai-context.yaml (AI용) 문서를 생성합니다.",
+      "설계안에서 Markdown과 YAML을 만듭니다. Render a design as Markdown and YAML.",
+    outputSchema: {
+      type: "object",
+      properties: { files: filesSchema },
+      required: ["files"],
+    },
     inputSchema: {
       type: "object" as const,
       properties: {

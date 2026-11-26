@@ -1,0 +1,26 @@
+name: Verify npm consumer
+on: [push, pull_request]
+jobs:
+  consumer:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Install the tarball and run the starter
+        run: |
+          tarball=$(npm pack --silent --pack-destination "$RUNNER_TEMP")
+          mkdir "$RUNNER_TEMP/consumer"
+          cp examples/starter.mjs "$RUNNER_TEMP/consumer/"
+          cd "$RUNNER_TEMP/consumer"
+          npm install "$RUNNER_TEMP/$tarball"
+          node starter.mjs docs
+          test -s docs/ARCHITECTURE.md
+          test -s docs/.ai-context.yaml
