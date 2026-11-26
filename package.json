@@ -1,6 +1,6 @@
 {
   "name": "tok_mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "클라우드 설계 문서와 서울 비용 추정 · Cloud architecture documents and Seoul cost estimates for Node.js and MCP",
   "main": "dist/index.js",
   "bin": {

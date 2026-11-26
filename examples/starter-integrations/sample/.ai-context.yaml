@@ -1,0 +1,61 @@
+schema_version: 2
+status: proposed
+project:
+  name: team-board
+architecture:
+  platform: aws
+  region: ap-northeast-2
+deployment:
+  runtime: server
+  database: required
+starter:
+  language: typescript
+  framework: Next.js (Pages Router), tRPC
+  orm: Prisma
+  entrypoints:
+    - prisma/schema.prisma
+    - src/server/db.ts
+    - src/pages/index.tsx
+compute:
+  service: ecs-fargate
+  cpuArch: arm64
+  cpu: 0.5vCPU
+  memory: 1GB
+  minInstances: 1
+  maxInstances: 4
+  autoScaling:
+    metric: cpu
+    targetValue: 70
+database:
+  primary:
+    type: postgresql
+    service: rds
+    instance: db.t4g.micro
+    storage: 20
+    multiAz: false
+  cache:
+    type: redis
+    service: elasticache
+    instance: cache.t4g.micro
+storage:
+  static:
+    service: s3
+    cdn: cloudfront
+networking:
+  loadBalancer: alb
+  dns: route53
+  ssl: acm
+dev_guide:
+  language: typescript
+  framework: Next.js (Pages Router), tRPC
+  orm: Prisma
+  env_vars:
+    - DATABASE_URL
+    - REDIS_URL
+    - AWS_REGION
+    - AWS_S3_BUCKET
+  constraints:
+    - ARM64 빌드가 필요합니다 (Docker buildx 또는 ARM 빌드 환경)
+    - 일부 native 바이너리 의존성은 ARM 버전 확인 필요
+    - Node.js, Python, Go, Java 등 주요 런타임 모두 지원
+estimated_cost: $72.65/month

@@ -5,6 +5,9 @@ project:
 architecture:
   platform: aws
   region: ap-northeast-2
+deployment:
+  runtime: server
+  database: required
 compute:
   service: ecs-fargate
   cpuArch: arm64

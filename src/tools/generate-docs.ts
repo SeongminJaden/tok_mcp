@@ -1,7 +1,7 @@
-import { generateArchitectureDocs, type ArchitectureDesign } from "../index.js";
+import { generateArchitectureDocs, type ArchitecturePlan } from "../index.js";
 
 export async function handleGenerateDocs(args: unknown) {
-  const { design, outputPath = "." } = args as { design: ArchitectureDesign; outputPath?: string };
+  const { design, outputPath = "." } = args as { design: ArchitecturePlan; outputPath?: string };
   const files = generateArchitectureDocs(design);
   return {
     structuredContent: { files },

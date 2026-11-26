@@ -138,3 +138,22 @@ export interface CostEstimate {
   total: number;
   currency: "USD";
 }
+
+export type Runtime = "server" | "static" | "undecided";
+export type DatabaseChoice = "required" | "none" | "undecided";
+
+export interface StarterFacts {
+  language?: string;
+  framework?: string;
+  orm?: string | null;
+  entrypoints?: string[];
+}
+
+export interface ArchitecturePlan extends Omit<ArchitectureDesign, "meta" | "compute" | "database" | "networking"> {
+  meta: Omit<ArchitectureDesign["meta"], "platform"> & { platform: Platform | "undecided" };
+  deployment?: { runtime: Runtime; database: DatabaseChoice };
+  starter?: StarterFacts;
+  compute: ComputeConfig | null;
+  database: DatabaseConfig | null;
+  networking: NetworkingConfig | null;
+}

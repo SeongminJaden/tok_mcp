@@ -26,6 +26,29 @@ console.log(files["ARCHITECTURE.md"]);
 
 Your application chooses where to save the files. You can edit the design object and render it again. [Starter example that writes both files](https://github.com/SeongminJaden/tok_mcp/blob/main/examples/starter.mjs)
 
+## Pass the stack selected by a starter
+
+These fields are available in the 0.3.0 source on GitHub. Run `npm ci && npm pack` in the repository root, then install the resulting `tok_mcp-0.3.0.tgz` in your consumer project. The MCP configuration below pins the previous public version. To run the source build over MCP, set the command to `node` and pass the absolute path to the built `dist/cli.js`.
+
+```js
+const design = designArchitecture({
+  description: "docs-site", serviceType: "web-api", dau: 500, monthlyBudget: 150,
+  platform: "aws", runtime: "static", database: "none",
+  starter: {
+    framework: "Next.js (App Router)", language: "typescript",
+    orm: null, entrypoints: ["app/layout.tsx", "app/page.tsx"],
+  },
+});
+```
+
+Pass facts from the scaffold in `starter`. Set `orm: null` for an unselected ORM. Runtime options are `server`, `static` and `undecided`. Database options are `required`, `none` and `undecided`. Use `platform: "undecided"` when hosting is open. Existing calls with a known platform still default to a server with a database.
+
+Static hosting defaults to no database. The AWS Seoul example estimates $1.25/month for 50 GB of static storage. A server with no database excludes database and cache charges. A pending database or runtime choice leaves the total unavailable. Model a separately hosted API as a server design. The MCP tool `estimate_cost` also accepts `{ design }` and returns `cost: null` for an unavailable total.
+
+Peak concurrency sets the load-test target. Growth sets the projected six-month DAU to test. The realtime, upload, AI and global flags add guidance on connections and reconnects, upload limits, inference capacity and costs, and regional latency and replication. They do not assign an unmeasured server count or extra service charge.
+
+[Run and verify all five starters](examples/starter-integrations/README.en.md)
+
 ## Connect Cursor or Claude Desktop
 
 Add this entry to your MCP settings. Call `design_architecture` for an initial design and pass an edited design to `generate_docs`. Both tools return file contents in `structuredContent.files`. Generated design prose is in Korean.

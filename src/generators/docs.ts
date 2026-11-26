@@ -5,13 +5,13 @@
 
 import { stringify } from "yaml";
 import { costAssumptions } from "../data/pricing.js";
-import { ArchitectureDesign, CostEstimate } from "../types/index.js";
+import { ArchitecturePlan, CostEstimate } from "../types/index.js";
 
 /**
  * ARCHITECTURE.md 생성 (사람이 읽는 문서)
  */
 export function generateArchitectureMd(
-  design: ArchitectureDesign,
+  design: ArchitecturePlan,
   cost: CostEstimate | null
 ): string {
   const diagram = generateDiagram(design);
@@ -24,6 +24,8 @@ export function generateArchitectureMd(
 - **플랫폼**: ${design.meta.platform.toUpperCase()}
 - **리전**: ${design.meta.region}
 - **생성일**: ${design.meta.generatedAt}
+${design.deployment ? `- **배포 방식**: ${design.deployment.runtime}
+- **DB 계획**: ${design.deployment.database}` : ""}
 
 ---
 
@@ -37,7 +39,7 @@ ${diagram}
 
 ## 구성 요소
 
-### 컴퓨팅
+${design.compute ? `### 컴퓨팅
 
 | 항목 | 값 |
 |------|-----|
@@ -45,9 +47,9 @@ ${diagram}
 | CPU 아키텍처 | ${design.compute.cpuArch} |
 | 사양 | ${design.compute.cpu}, ${design.compute.memory} |
 | 인스턴스 수 | ${design.compute.minInstances} ~ ${design.compute.maxInstances} |
-| 오토스케일링 | ${design.compute.autoScaling.metric} ${design.compute.autoScaling.targetValue}% |
+| 오토스케일링 | ${design.compute.autoScaling.metric} ${design.compute.autoScaling.targetValue}% |` : "상시 서버: " + (design.deployment?.runtime === "static" ? "없음" : "미정")}
 
-### 데이터베이스
+${design.database ? `### 데이터베이스
 
 | 항목 | 값 |
 |------|-----|
@@ -55,10 +57,10 @@ ${diagram}
 | 서비스 | ${design.database.primary.service} |
 | 인스턴스 | ${design.database.primary.instance} |
 | 스토리지 | ${design.database.primary.storage}GB |
-| Multi-AZ | ${design.database.primary.multiAz ? "활성화" : "비활성화"} |
+| Multi-AZ | ${design.database.primary.multiAz ? "활성화" : "비활성화"} |` : "데이터베이스: " + (design.deployment?.database === "none" ? "없음" : design.deployment?.database === "required" ? "필요 (구성 미정)" : "미정")}
 
 ${
-  design.database.cache
+  design.database?.cache
     ? `### 캐시
 
 | 항목 | 값 |
@@ -70,13 +72,13 @@ ${
     : ""
 }
 
-### 네트워킹
+${design.networking ? `### 네트워킹
 
 | 항목 | 값 |
 |------|-----|
 | 로드밸런서 | ${design.networking.loadBalancer} |
 | DNS | ${design.networking.dns} |
-| SSL | ${design.networking.ssl} |
+| SSL | ${design.networking.ssl} |` : ""}
 
 ---
 
@@ -104,7 +106,7 @@ ${cost ? `| 항목 | 월 비용 (USD) |
 | 네트워킹 | $${cost.networking} |
 | **합계** | **$${cost.total}** |
 
-> ${costAssumptions}` : "구성에 대응하는 단가가 없어 추정을 보류했습니다."}
+> ${design.deployment?.runtime === "static" ? "2026-11-26 서울 단가, 정적 파일 50GB(AWS) 또는 50GiB(GCP) 기준. 요청·전송·CDN·세금 제외." : costAssumptions}` : "구성 또는 적용 단가가 미정이어서 총액 산정을 보류했습니다."}
 
 ---
 
@@ -116,6 +118,14 @@ ${design.scalingStrategy.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 
 ## 개발 가이드
 
+${design.starter ? `### 스타터에서 확인한 값
+${[
+  design.starter.language && `- 언어: ${design.starter.language}`,
+  design.starter.framework && `- 프레임워크: ${design.starter.framework}`,
+  design.starter.orm !== undefined && `- ORM: ${design.starter.orm ?? "미선택"}`,
+  ...(design.starter.entrypoints ?? []).map(path => `- 경로: ${path}`),
+].filter(Boolean).join("\n")}
+` : ""}
 ### 기술 스택
 
 - **언어**: ${design.devGuide.language}
@@ -158,12 +168,14 @@ ${design.devGuide.constraints.map((c) => `- ${c}`).join("\n")}
 /**
  * .ai-context.yaml 생성 (AI가 읽는 컨텍스트 파일)
  */
-export function generateAiContextYaml(design: ArchitectureDesign): string {
+export function generateAiContextYaml(design: ArchitecturePlan): string {
   return stringify({
     schema_version: 2,
     status: "proposed",
     project: { name: design.meta.serviceName },
     architecture: { platform: design.meta.platform, region: design.meta.region },
+    deployment: design.deployment,
+    starter: design.starter,
     compute: design.compute,
     database: design.database,
     storage: design.storage,
@@ -182,38 +194,14 @@ export function generateAiContextYaml(design: ArchitectureDesign): string {
 /**
  * 아키텍처 다이어그램 생성
  */
-function generateDiagram(design: ArchitectureDesign): string {
-  const platform = design.meta.platform.toUpperCase();
-  const compute = design.compute.service;
-  const db = design.database.primary.service;
-  const cache = design.database.cache?.service || "";
-  const storage = design.storage.static?.service || "";
-  const cdn = design.storage.static?.cdn || "";
-  const lb = design.networking.loadBalancer;
-  const dns = design.networking.dns;
-
-  return `┌─────────────────────────────────────────────────────────────┐
-│                     ${platform} Cloud                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│    Users                                                    │
-│      │                                                      │
-│      ▼                                                      │
-│  ${dns.padEnd(10)} ──▶ ${(cdn || "").padEnd(12)} ──▶ ${lb.toUpperCase().padEnd(6)}             │
-│                                       │                     │
-│                                       ▼                     │
-│                            ┌──────────────────┐            │
-│                            │  ${compute.padEnd(16)}│            │
-│                            │  (${design.compute.cpuArch})${" ".repeat(7)}│            │
-│                            │  Auto Scaling    │            │
-│                            └────────┬─────────┘            │
-│                                     │                      │
-│               ┌─────────────────────┼────────────────┐     │
-│               ▼                     ▼                ▼     │
-│        ┌──────────┐          ┌──────────┐     ┌──────────┐│
-│        │  ${db.padEnd(8)}│          │  ${cache.padEnd(8)}│     │  ${storage.padEnd(8)}││
-│        │${design.database.primary.type.padEnd(10)}│          │  Cache   │     │ Storage ││
-│        └──────────┘          └──────────┘     └──────────┘│
-│                                                             │
-└─────────────────────────────────────────────────────────────┘`;
+function generateDiagram(design: ArchitecturePlan): string {
+  if (!design.compute) return design.storage.static
+    ? `Users → ${design.storage.static.service} (static files)`
+    : "배포 대상 미정";
+  const components = [design.networking?.dns, design.networking?.loadBalancer, design.compute.service];
+  const lines = [components.filter(Boolean).join(" → ")];
+  for (const service of [design.database?.primary.service, design.database?.cache?.service, design.storage.static?.service]) {
+    if (service) lines.push(`${design.compute.service} → ${service}`);
+  }
+  return lines.join("\n");
 }

@@ -3,8 +3,8 @@
  * 아키텍처 구성에 대한 월간 비용 계산
  */
 
-import { Platform } from "../types/index.js";
-import { calculateCost, costAssumptions } from "../data/pricing.js";
+import type { Platform, ArchitecturePlan } from "../types/index.js";
+import { calculateCost, costAssumptions, estimatePlanCost } from "../data/pricing.js";
 
 interface CostInput {
   platform: Platform;
@@ -27,6 +27,10 @@ interface CostInput {
 }
 
 export async function handleEstimateCost(args: unknown) {
+  if (args && typeof args === "object" && "design" in args) {
+    const cost = estimatePlanCost(args.design as ArchitecturePlan);
+    return { structuredContent: { cost }, content: [{ type: "text", text: JSON.stringify({ cost }) }] };
+  }
   const input = args as CostInput;
 
   if (!input.platform || !input.compute || !input.database) {

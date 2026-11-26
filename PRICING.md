@@ -20,3 +20,7 @@ Checked on 26 November 2026. Amounts are in USD and assume 730 hours at the mini
 AWS 리전은 `ap-northeast-2`, GCP 리전은 `asia-northeast3`입니다. 객체 저장소의 기본 사용량은 50GB(AWS) 또는 50GiB(GCP)입니다. 각 항목을 센트 단위로 반올림한 뒤 합산합니다. 지원되지 않는 구성을 입력하면 금액을 비워 둡니다. Naver Cloud는 서버 세대와 사양을 지정해 공식 계산기에서 원화로 확인하세요. [Naver Cloud 요금](https://www.ncloud.com/charge/price/ko)
 
 The model covers AWS Seoul and Google Cloud Seoul. Object storage assumes 50 GB on AWS or 50 GiB on Google Cloud. Each line is rounded to cents before addition. An unpriced component leaves the estimate unavailable. For Naver Cloud, select the server generation and size in the provider’s KRW calculator. [Naver Cloud pricing](https://www.ncloud.com/charge/price/ko)
+
+0.3.0에서 DB 없음은 DB·캐시 비용 0, 미정은 총액 보류로 처리합니다. 정적 호스팅은 서울 객체 저장소 50GB(AWS $1.25) 또는 50GiB(GCP $1.15)만 포함합니다. 요청·CDN·전송 요금은 별도입니다.
+
+In 0.3.0, an absent database contributes zero database and cache charges. An undecided database leaves the total unavailable. Static hosting includes only 50 GB in Seoul S3 ($1.25) or 50 GiB in Seoul Cloud Storage ($1.15). Requests, CDN and transfer are extra.

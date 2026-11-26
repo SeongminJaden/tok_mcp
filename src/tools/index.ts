@@ -24,9 +24,17 @@ export const tools: Tool[] = [
     inputSchema: {
       type: "object" as const,
       properties: {
+        runtime: { type: "string", enum: ["server", "static", "undecided"] },
+        database: { type: "string", enum: ["required", "none", "undecided"] },
+        starter: {
+          type: "object", properties: {
+            language: { type: "string", minLength: 1 }, framework: { type: "string", minLength: 1 },
+            orm: { type: ["string", "null"] }, entrypoints: { type: "array", items: { type: "string", minLength: 1 } },
+          },
+        },
         platform: {
           type: "string",
-          enum: ["aws", "gcp", "naver-cloud", "on-premise"],
+          enum: ["aws", "gcp", "naver-cloud", "on-premise", "undecided"],
           description: "클라우드 플랫폼 (aws, gcp, naver-cloud, on-premise)",
         },
         serviceType: {
@@ -150,6 +158,7 @@ export const tools: Tool[] = [
     inputSchema: {
       type: "object" as const,
       properties: {
+        design: { type: "object", description: "설계 전체 / Full design returned by design_architecture" },
         platform: {
           type: "string",
           enum: ["aws", "gcp", "naver-cloud"],
@@ -184,7 +193,7 @@ export const tools: Tool[] = [
           description: "캐시 구성 (선택)",
         },
       },
-      required: ["platform", "compute", "database"],
+      anyOf: [{ required: ["design"] }, { required: ["platform", "compute", "database"] }],
     },
   },
   {

@@ -1,0 +1,12 @@
+{
+  "name": "tok-starter-integration-examples",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "tok_mcp": "file:../..",
+    "create-t3-app": "7.40.0"
+  },
+  "devDependencies": {
+    "yaml": "^2.9.1"
+  }
+}
